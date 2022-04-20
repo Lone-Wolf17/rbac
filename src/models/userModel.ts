@@ -1,8 +1,12 @@
 import { prop as Property, getModelForClass } from "@typegoose/typegoose";
+import {Types} from 'mongoose';
 
 import { RoleNames } from "../constants/enums";
 
 export class User {
+
+  public id!: Types.ObjectId
+
   @Property({ required: true, trim: true })
   public email!: string;
 

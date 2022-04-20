@@ -15,11 +15,13 @@ router.post("/login", userController.login);
 router.get("/:userId", authMiddleware.allowIfLoggedIn, userController.getUser);
 
 router.get(
-  "/users",
+  "/",
   authMiddleware.allowIfLoggedIn,
   function (req: CustomRequestObject, res, next) {
     return authMiddleware.checkAccess(
-      Roles.can(req.user!.role).readAny(Resource.profile)
+      Roles.can(req.user!.role).readAny(Resource.profile),
+      res,
+      next
     );
   },
   userController.getUsers
@@ -30,7 +32,9 @@ router.put(
   authMiddleware.allowIfLoggedIn,
   function (req: CustomRequestObject, res, next) {
     return authMiddleware.checkAccess(
-      Roles.can(req.user!.role).updateAny(Resource.profile)
+      Roles.can(req.user!.role).updateAny(Resource.profile),
+      res,
+      next
     );
   },
   userController.updateUser
@@ -41,7 +45,9 @@ router.delete(
   authMiddleware.allowIfLoggedIn,
   function (req: CustomRequestObject, res, next) {
     return authMiddleware.checkAccess(
-      Roles.can(req.user!.role).deleteAny(Resource.profile)
+      Roles.can(req.user!.role).deleteAny(Resource.profile),
+      res,
+      next
     );
   },
   userController.deleteUser

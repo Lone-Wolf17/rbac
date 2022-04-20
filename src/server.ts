@@ -1,6 +1,4 @@
 import express from "express";
-
-import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -39,7 +37,7 @@ app.use(async (req, res, next) => {
 });
 
 /// set up routes
-app.use("/user", userRouter);
+app.use("/users", userRouter);
 
 connectDB(() => {
   // start up server

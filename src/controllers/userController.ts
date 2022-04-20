@@ -32,6 +32,7 @@ export const signUp = async (
     const userData = {
       email: newUser.email,
       role: newUser.role,
+      id: newUser.id,
     };
     res.json({
       data: userData,
@@ -59,8 +60,9 @@ export const login = async (
     const accessToken = signToken(user._id);
 
     await UserModel.findByIdAndUpdate(user._id, { accessToken });
+    console.log(user.id, "User ID");
     res.status(200).json({
-      data: { email: user.email, role: user.role },
+      data: { email: user.email, role: user.role, id: user.id },
       accessToken,
     });
   } catch (error) {
@@ -73,7 +75,7 @@ export const getUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const users = await UserModel.find({});
+  const users = await UserModel.find().select("-password");
   res.status(200).json({
     data: users,
   });
@@ -86,7 +88,7 @@ export const getUser = async (
 ) => {
   try {
     const userId = req.params.userId;
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId).select("-password");
     if (!user) return next(new Error("User does not exist"));
 
     res.status(200).json({
@@ -105,6 +107,12 @@ export const updateUser = async (
   try {
     const update = req.body;
     const userId = req.params.userId;
+    if (update.password) {
+      return res.status(403).json({
+        success: false,
+        message: "Password Change Not allowed",
+      });
+    }
     const updatedUser = await UserModel.findByIdAndUpdate(userId, update, {
       new: true,
       runValidators: true,
@@ -120,6 +128,7 @@ export const updateUser = async (
       data: {
         email: updatedUser.email,
         role: updatedUser.role,
+        id: updatedUser.id,
       },
       message: "User has been updated",
     });
@@ -128,7 +137,11 @@ export const updateUser = async (
   }
 };
 
-export const deleteUser = async (req:Request, res:Response, next: NextFunction) => {
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.params.userId;
     await UserModel.findByIdAndDelete(userId);
