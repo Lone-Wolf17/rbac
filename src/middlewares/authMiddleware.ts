@@ -1,12 +1,14 @@
-const { roles } = require('../roles');
+import Roles from '../roles';
+import { Response, NextFunction } from 'express';
+import { CustomRequestObject } from 'models/custom-request-object';
+import { Permission } from 'accesscontrol';
 
-exports.grantAccess = function (action, resource) {
-    return async (req, res, next) => {
+export const checkAccess = function (permission: Permission) {
+    return (req: CustomRequestObject, res: Response, next: NextFunction) => {
         try {
-            const permission = roles.can(req.user.role)[action](resource);
             if (!permission.granted) {
                 return res.status(401).json({
-                    error: "You don't have enough permission to perform this action"
+                    error: "You don't have permission to perform this action"
                 });
             }
             next();
@@ -16,7 +18,7 @@ exports.grantAccess = function (action, resource) {
     }
 }
 
-exports.allowIfLoggedIn = async (req, res, next) => {
+export const allowIfLoggedIn = (req: CustomRequestObject, res: Response, next: NextFunction) => {
     try {
         const user = res.locals.loggedInUser;
         if (!user) {
